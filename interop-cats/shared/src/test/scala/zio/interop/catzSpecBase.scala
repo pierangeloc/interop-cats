@@ -1,7 +1,7 @@
 package zio.interop
 
 import cats.Eq
-import cats.effect.laws.util.{ TestContext, TestInstances }
+import cats.effect.laws.util.{TestContext, TestInstances}
 import cats.implicits._
 import org.scalacheck.Arbitrary
 import org.scalatest.funsuite.AnyFunSuite
@@ -9,18 +9,18 @@ import org.typelevel.discipline.Laws
 import org.typelevel.discipline.scalatest.Discipline
 import zio.clock.Clock
 import zio.console.Console
-import zio.internal.{ Executor, PlatformLive }
+import zio.internal.{Executor, Platform}
 import zio.interop.catz.taskEffectInstance
 import zio.random.Random
 import zio.system.System
-import zio.{ Cause, DefaultRuntime, IO, Runtime, UIO, ZIO }
+import zio.{Cause, DefaultRuntime, IO, Runtime, UIO, ZIO}
 
 private[zio] trait catzSpecBase extends AnyFunSuite with Discipline with TestInstances with catzSpecBaseLowPriority {
 
   type Env = Clock with Console with System with Random
 
-  implicit def rts(implicit tc: TestContext): Runtime[Env] = new DefaultRuntime {
-    override val platform = PlatformLive
+  implicit def rts(implicit tc: TestContext): Runtime[Unit] = new DefaultRuntime {
+    override val platform = Platform
       .fromExecutor(Executor.fromExecutionContext(Int.MaxValue)(tc))
       .withReportFailure(_ => ())
   }
