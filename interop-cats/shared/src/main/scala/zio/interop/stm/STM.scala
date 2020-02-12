@@ -73,7 +73,7 @@ final class STM[F[+_], +A] private[stm] (private[stm] val underlying: ZSTM[Throw
   final def either: STM[F, Either[Throwable, A]] = new STM(underlying.either)
 
   /**
-   * See [[zio.stm.ZSTM#filter]]
+   * See [[zio.stm.ZSTM#withFilter]]
    */
   final def filter(f: A => Boolean): STM[F, A] =
     collect {

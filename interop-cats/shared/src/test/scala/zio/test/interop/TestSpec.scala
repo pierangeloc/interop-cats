@@ -8,7 +8,7 @@ import zio.test.TestAspect._
 import zio.test._
 
 object TestSpec extends DefaultRunnableSpec {
-  override def spec: ZSpec[_root_.zio.test.environment.TestEnvironment, Any, String, Any] =
+  override def spec: ZSpec[_root_.zio.test.environment.TestEnvironment, Any] =
     suite("TestSpec")(
       testF("arbitrary effects can be tested") {
         for {

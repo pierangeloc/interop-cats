@@ -128,7 +128,7 @@ trait CatsTestFunctions {
   /**
    * Builds a spec with a single effectful test.
    */
-  final def testF[F[_], L](label: L)(assertion: F[TestResult])(implicit F: Effect[F]): ZSpec[Any, Throwable, L, Unit] =
+  final def testF[F[_]](label: String)(assertion: F[TestResult])(implicit F: Effect[F]): ZSpec[Any, Throwable] =
     testM(label)(fromEffect(assertion))
 
   private def fromEffect[F[_], A](eff: F[A])(implicit F: Effect[F]): Task[A] =

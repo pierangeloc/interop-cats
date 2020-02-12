@@ -208,7 +208,7 @@ private class CatsConcurrent[R] extends CatsMonadError[R, Throwable] with Concur
 
   override final def cancelable[A](k: (Either[Throwable, A] => Unit) => effect.CancelToken[RIO[R, *]]): RIO[R, A] =
     RIO.effectAsyncInterrupt[R, A] { kk =>
-      val token = k(kk apply _.fold(ZIO.fail, ZIO.succeed))
+      val token = k(kk apply _.fold(ZIO.failNow, ZIO.succeedNow))
       Left(token.orDie)
     }
 
@@ -223,18 +223,18 @@ private class CatsConcurrent[R] extends CatsMonadError[R, Throwable] with Concur
     fb: RIO[R, B]
   ): RIO[R, Either[(A, effect.Fiber[RIO[R, *], B]), (effect.Fiber[RIO[R, *], A], B)]] =
     (fa raceWith fb)(
-      { case (l, f) => l.fold(f.interrupt *> RIO.halt(_), RIO.succeed).map(lv => Left((lv, toFiber(f)))) },
-      { case (r, f) => r.fold(f.interrupt *> RIO.halt(_), RIO.succeed).map(rv => Right((toFiber(f), rv))) }
+      { case (l, f) => l.fold(f.interrupt *> RIO.halt(_), RIO.succeedNow).map(lv => Left((lv, toFiber(f)))) },
+      { case (r, f) => r.fold(f.interrupt *> RIO.halt(_), RIO.succeedNow).map(rv => Right((toFiber(f), rv))) }
     )
 
   override final def never[A]: RIO[R, A] =
     RIO.never
 
   override final def async[A](k: (Either[Throwable, A] => Unit) => Unit): RIO[R, A] =
-    RIO.effectAsync(kk => k(kk apply _.fold(ZIO.fail, ZIO.succeed)))
+    RIO.effectAsync(kk => k(kk apply _.fold(ZIO.failNow, ZIO.succeedNow)))
 
   override final def asyncF[A](k: (Either[Throwable, A] => Unit) => RIO[R, Unit]): RIO[R, A] =
-    RIO.effectAsyncM(kk => k(kk apply _.fold(ZIO.fail, ZIO.succeed)).orDie)
+    RIO.effectAsyncM(kk => k(kk apply _.fold(ZIO.failNow, ZIO.succeedNow)).orDie)
 
   override final def suspend[A](thunk: => RIO[R, A]): RIO[R, A] =
     RIO.effectSuspend(thunk)
